@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <title>mdol注册</title>
+</head>
+<body ng-app="regApp" ng-controller="resgistCtrl">
+<div class="well" style="max-width: 400px; margin: 0 auto 10px; margin-top: 150px">
+    <h1 align="center">mdol注册</h1>
+    <form action="/user/regist" method="post">
+        <div class="form-group">
+            <h3>邮箱</h3><input class="form-control bg-info " type="email" name="email">
+        </div>
+        <div class="form-group">
+            <h3>密码</h3><input class="form-control bg-info " name="password" type="password">
+        </div>
+        <div class="form-group">
+            <h3>密码</h3><input class="form-control bg-info " ng-model="user.passwordCheck">
+        </div>
+        <button class="btn btn-info btn-block btn-lg" ng-click="regSubmit()">注册</button>
+    </form>
+</div>
+</body>
+<script>
+    var app = angular.module('regApp', []);
+    app.controller('resgistCtrl', function ($scope) {
+        $scope.regSubmit = function () {
+            $http.post(${request.getContextPath()}+"/user/regist").success(function (response) {
+                if (response.status == 200) {
+                    alert(注册成功);
+                    alert(response);
+                }
+            });
+        }
+    });
+</script>
+</html>

@@ -15,6 +15,7 @@ public class Sharenote {
         return id;
     }
 
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -41,5 +42,15 @@ public class Sharenote {
 
     public void setSharedate(Date sharedate) {
         this.sharedate = sharedate;
+    }
+
+    @Override
+    public String toString() {
+        return "Sharenote{" +
+                "id=" + id +
+                ", noteid=" + noteid +
+                ", createdate=" + createdate +
+                ", sharedate=" + sharedate +
+                '}';
     }
 }

@@ -9,7 +9,8 @@ import cn.mdol.po.ResponResult;
 
 public interface NoteService {
     ResponResult addNote(String token);
-    ResponResult getNote(String token,Integer noteId);
-    ResponResult updateNote(String token,Integer noteId);
+    ResponResult getNote(String token,Long noteId);
+    ResponResult updateNote(String token,Note note);
+    ResponResult getAllNote(String token);
 
 }

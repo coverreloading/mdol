@@ -65,4 +65,16 @@ public class User {
     public void setJoindate(Date joindate) {
         this.joindate = joindate;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", pic='" + pic + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", joindate=" + joindate +
+                '}';
+    }
 }

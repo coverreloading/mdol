@@ -14,4 +14,5 @@ public interface UserService {
     ResponResult checkData(String param, Integer type);
     ResponResult login(String email, String password);
     ResponResult getUserByToken(String token);
+    Long getUserIdByToken(String token);
 }

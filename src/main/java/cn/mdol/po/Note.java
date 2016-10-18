@@ -5,6 +5,8 @@ import java.util.Date;
 public class Note {
     private Long id;
 
+
+
     private String name;
 
     private String data;
@@ -81,5 +83,19 @@ public class Note {
 
     public void setUserid(Long userid) {
         this.userid = userid;
+    }
+
+    @Override
+    public String toString() {
+        return "Note{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", data='" + data + '\'' +
+                ", create='" + create + '\'' +
+                ", update=" + update +
+                ", isshared=" + isshared +
+                ", isdel=" + isdel +
+                ", userid=" + userid +
+                '}';
     }
 }

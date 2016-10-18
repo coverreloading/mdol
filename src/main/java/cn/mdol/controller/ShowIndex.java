@@ -20,6 +20,10 @@ public class ShowIndex {
     public String showMain(){
         return "main";
     }
+    @RequestMapping("/main2")
+    public String showMain2(){
+        return "main2";
+    }
     @RequestMapping("/mdpage.html")
     public String showmdpage(){
         return "mdpage";

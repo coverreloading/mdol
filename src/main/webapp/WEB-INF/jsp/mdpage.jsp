@@ -42,7 +42,6 @@
             font-family: 'Monaco', courier, monospace;
             padding: 20px;
         }
-
         code {
             color: #f66;
         }
@@ -59,10 +58,10 @@
     var inputString = null;
     var app = angular.module("mdApp", []);
     app.controller("mdCtrl", function ($scope, $http) {
-        $http.get("${request.getContextPath()}/user/token/49c85b8f-8a1d-4fa4-a458-1e6591ec5f3a")
+        $http.get("${request.getContextPath()}/note/defaultShow")
                 .success(function (data) {
                     if (data.status == 200) {
-                        inputString = data.data;
+                        inputString = data.msg;
                         new Vue({
                             el: '#editor',
                             data: {
@@ -79,7 +78,6 @@
                     }
                 });
     });
-
 
 </script>
 

@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, data, create, update, isshared, isdel, userid
+    id, name, data, `create`, `update`, isshared, isdel, userid
   </sql>
   <select id="selectByExample" parameterType="cn.mdol.po.NoteExample" resultMap="BaseResultMap">
     select
@@ -131,10 +131,10 @@
         data,
       </if>
       <if test="create != null">
-        create,
+        `create`,
       </if>
       <if test="update != null">
-        update,
+        `update`,
       </if>
       <if test="isshared != null">
         isshared,
@@ -192,10 +192,10 @@
         data = #{record.data,jdbcType=VARCHAR},
       </if>
       <if test="record.create != null">
-        create = #{record.create,jdbcType=VARCHAR},
+        `create` = #{record.create,jdbcType=VARCHAR},
       </if>
       <if test="record.update != null">
-        update = #{record.update,jdbcType=TIMESTAMP},
+        `update` = #{record.update,jdbcType=TIMESTAMP},
       </if>
       <if test="record.isshared != null">
         isshared = #{record.isshared,jdbcType=INTEGER},
@@ -216,8 +216,8 @@
     set id = #{record.id,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
       data = #{record.data,jdbcType=VARCHAR},
-      create = #{record.create,jdbcType=VARCHAR},
-      update = #{record.update,jdbcType=TIMESTAMP},
+      `create` = #{record.create,jdbcType=VARCHAR},
+      `update` = #{record.update,jdbcType=TIMESTAMP},
       isshared = #{record.isshared,jdbcType=INTEGER},
       isdel = #{record.isdel,jdbcType=INTEGER},
       userid = #{record.userid,jdbcType=BIGINT}
@@ -235,10 +235,10 @@
         data = #{data,jdbcType=VARCHAR},
       </if>
       <if test="create != null">
-        create = #{create,jdbcType=VARCHAR},
+        `create` = #{create,jdbcType=VARCHAR},
       </if>
       <if test="update != null">
-        update = #{update,jdbcType=TIMESTAMP},
+        `update` = #{update,jdbcType=TIMESTAMP},
       </if>
       <if test="isshared != null">
         isshared = #{isshared,jdbcType=INTEGER},
@@ -256,8 +256,8 @@
     update note
     set name = #{name,jdbcType=VARCHAR},
       data = #{data,jdbcType=VARCHAR},
-      create = #{create,jdbcType=VARCHAR},
-      update = #{update,jdbcType=TIMESTAMP},
+      `create` = #{create,jdbcType=VARCHAR},
+      `update` = #{update,jdbcType=TIMESTAMP},
       isshared = #{isshared,jdbcType=INTEGER},
       isdel = #{isdel,jdbcType=INTEGER},
       userid = #{userid,jdbcType=BIGINT}

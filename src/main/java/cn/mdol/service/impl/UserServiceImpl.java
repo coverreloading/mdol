@@ -86,14 +86,27 @@ public class UserServiceImpl implements UserService {
 
         return ResponResult.ok(token);
     }
-    // 根据token从redis获取用户信息
+    // 根据token从redis获取用户信息,返回用户json
     @Override
     public ResponResult getUserByToken(String token) {
         String json = jedisClient.get(REDIS_USER_SESSION_KEY+":"+token);
         if(StringUtils.isBlank(json)){
-            return ResponResult.build(400,"session已过期,请重新登录");
+            return ResponResult.build(401,"session已过期,请重新登录");
         }
         jedisClient.expire(REDIS_USER_SESSION_KEY+":"+token,SSO_SESSION_EXPIRE);
         return ResponResult.ok(json);
+    }
+
+    // 根据token查询jedis中用户id,返回-1代表session过期
+    @Override
+    public Long getUserIdByToken(String token){
+        String json = jedisClient.get(REDIS_USER_SESSION_KEY+":"+token);
+        if(StringUtils.isBlank(json)){
+            return Long.valueOf(-1);
+        }
+        jedisClient.expire(REDIS_USER_SESSION_KEY+":"+token,SSO_SESSION_EXPIRE);
+        User user = JsonUtils.jsonToPojo(json,User.class);
+        System.out.println(user.toString());
+        return user.getId();
     }
 }

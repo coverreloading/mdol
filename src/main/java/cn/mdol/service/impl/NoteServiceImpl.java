@@ -1,18 +1,16 @@
 package cn.mdol.service.impl;
 
 import cn.mdol.mapper.NoteMapper;
-import cn.mdol.mapper.UserMapper;
 import cn.mdol.po.*;
 import cn.mdol.service.NoteService;
 import cn.mdol.service.UserService;
-import cn.mdol.utils.ExceptionUtil;
 import cn.mdol.utils.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.xml.crypto.Data;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +47,8 @@ public class NoteServiceImpl implements NoteService {
         }
         Note note = new Note();
         note.setUserid(userId);
-        note.setName(new Date().toString());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss");
+        note.setName(format.format(new Date()));
         note.setCreate(new Date().toString());// TODO 日期格式不对
         note.setUpdate(new Date());
         note.setData(DEFAULT_NOTE_CONTENT);
@@ -72,17 +71,26 @@ public class NoteServiceImpl implements NoteService {
         if (userId==-1){
             return ResponResult.build(401,"session已过期,请重新登录");
         }
-        // redis查询token获取userid
-        String json = jedisClient.get(REDIS_USER_SESSION_KEY+":"+token+":"+noteId);
+
+        // 1. redis查询token获取userid
+        //String json = jedisClient.get(REDIS_USER_SESSION_KEY+":"+token+":"+noteId);
         // 非空判定
-        if(StringUtils.isBlank(json)){
-            return ResponResult.build(400, "查无笔记");
-        }
-        Note note = JsonUtils.jsonToPojo(json,Note.class);
+        //if(StringUtils.isBlank(json)){
+        //    return ResponResult.build(400, "查无笔记");
+        //}
+        //Note note = JsonUtils.jsonToPojo(json,Note.class);
+
+        // 2. 直接查数据库
+        Note note = noteMapper.selectByPrimaryKey(noteId);
+
+
         // token对应用户id与笔记的userid不一致
         if(note.getUserid()!=userId) {
             return ResponResult.build(400, "又一个搞事的");
         }
+        // 直接查数据库需要更新redis
+        jedisClient.set(REDIS_USER_SESSION_KEY+":"+token+":"+noteId,JsonUtils.objectToJson(note));
+
         // 更新session时效
         jedisClient.expire(REDIS_USER_SESSION_KEY+":"+token,SSO_SESSION_EXPIRE);
         jedisClient.expire(REDIS_USER_SESSION_KEY+":"+token+":"+noteId,SSO_SESSION_EXPIRE);
@@ -101,8 +109,15 @@ public class NoteServiceImpl implements NoteService {
         if(note.getUserid()!=userId){
             return ResponResult.build(401,"session已过期,请重新登录");
         }
-        note.setUpdate(new Date());
-        noteMapper.updateByPrimaryKey(note);
+
+        Note noteFromDB = noteMapper.selectByPrimaryKey(note.getId());
+
+        String[] text=note.getData().split("\n");
+        noteFromDB.setName(text[0]);
+        noteFromDB.setUpdate(new Date());
+        noteFromDB.setData(note.getData());
+
+        noteMapper.updateByPrimaryKey(noteFromDB);
         // 存入redis
         jedisClient.set(REDIS_USER_SESSION_KEY+":"+token+":"+note.getId(),JsonUtils.objectToJson(note));
         // 更新redis时间

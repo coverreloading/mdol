@@ -5,6 +5,7 @@ import cn.mdol.mapper.SharenoteMapper;
 import cn.mdol.mapper.UserMapper;
 import cn.mdol.po.*;
 import cn.mdol.po.UserExample.Criteria;
+import cn.mdol.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class testsetnull {
     @Test
     public void update() {
         UserExample userExample = new UserExample();
-        Criteria criteria = userExample.createCriteria();
+        UserExample.Criteria criteria = userExample.createCriteria();
         criteria.andNameEqualTo("test");
         List<User> list = userMapper.selectByExample(userExample);
         User usertemp = list.get(0);

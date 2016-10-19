@@ -58,11 +58,33 @@
             </div>
         </nav>
         <div id="page-wrapper">
-            <div>
+            <div style="position: relative">
                 <div class="editormd" id="test-editormd">
-                    <textarea class="editormd-markdown-textarea" name="test-editormd-markdown-doc">{{getNote}}</textarea>
+                    <textarea class="editormd-markdown-textarea"
+                              name="test-editormd-markdown-doc">{{getNote}}</textarea>
                     <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
                     <textarea class="editormd-html-textarea" name="text"></textarea>
+                </div>
+                <div style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 45px;">
+                    <a class="btn btn-info btn-block btn-lg" ng-click="updateNote(noteInActiveid)">保存</a>
+                </div>
+                <div hidden="hidden" >
+                    // 临时放置被选中笔记
+                    {{noteInActiveid}}
+                    <br/>
+                    {{noteInActivename}}
+                    <br/>
+                    {{noteInActivedata}}
+                    <br/>
+                    {{noteInActivecreate}}
+                    <br/>
+                    {{noteInActiveupdate}}
+                    <br/>
+                    {{noteInActiveisshared}}
+                    <br/>
+                    {{noteInActiveisdel}}
+                    <br/>
+                    {{noteInActiveuserid}}
                 </div>
             </div>
         </div>
@@ -74,7 +96,7 @@
     // 页面高度
     var winowHeight = document.documentElement.clientHeight; //获取窗口高度
 
-    winowHeight = winowHeight-51;
+    winowHeight = winowHeight - 42;
     $(function () {
         testEditor = editormd("test-editormd", {
             width: "100%",
@@ -90,7 +112,7 @@
     var text = null;
     var app = angular.module("noteApp", []);
     app.controller("noteCtrl", function ($scope, $http, $window, $timeout) {
-        $scope.noteListHeight=winowHeight-51;
+        $scope.noteListHeight = winowHeight - 51;
         // 未登录跳转
         if ("${token}" == "") {
             $window.location.href = '${request.getContextPath()}/login';
@@ -106,11 +128,12 @@
             })
                     .success(function (data) {
                         console.log(data);
-                        if (data.status == 200) {
+                        if (data.status == 200 || data.status == 500) {
                             $scope.notes = data.data;
-                            // $window.location.href = '${request.getContextPath()}/main';
-                        } else {
+                        }
+                        else {
                             alert("session过期,请重新登录");
+                            $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
         }, 1000);
@@ -145,24 +168,51 @@
                         }
                     });
         };
-
         //TODO // 选择查看笔记
-        $scope['getNote'] = function getNote(noteId) {
+        $scope['getNote'] = function getNoteFun(noteId) {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/getNote',
                 data: "token=${token}&noteId=" + noteId,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
             })
+                    .success(function (respon) {
+                        console.log(respon);
+                        if (respon.status == 200) {
+                            testEditor.setMarkdown(respon.data.data);
+                            $scope.noteInActiveid = noteId;
+                            $scope.noteInActivename = respon.data.name;
+                            $scope.noteInActivedata = respon.data.data;
+                            $scope.noteInActivecreate = respon.data.create;
+                            $scope.noteInActiveupdate = respon.data.updata;
+                            $scope.noteInActiveisshared = respon.data.isshared;
+                            $scope.noteInActiveisdel = respon.data.isdel;
+                            $scope.noteInActiveuserid = respon.data.userid;
+                        } else {
+                            alert("session过期,请重新登录");
+                        }
+                    });
+        }
+        // 笔记保存方法
+
+        $scope['updateNote'] = function updateNote(noteId) {
+            $http({
+                method: 'POST',
+                url: '${request.getContextPath()}/note/updateNote',
+                data: "token=${token}&id=" + noteId +
+                "&data=" + testEditor.getMarkdown() +
+                "&userid=" + $scope.noteInActiveuserid,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            })
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            testEditor.setMarkdown(data.data.data);
+                            alert("保存成功")
                         } else {
                             alert("session过期,请重新登录");
                         }
                     });
         }
     });
-
 </script>
+</html>

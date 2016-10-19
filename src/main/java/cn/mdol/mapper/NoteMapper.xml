@@ -4,8 +4,8 @@
   <resultMap id="BaseResultMap" type="cn.mdol.po.Note">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="data" jdbcType="VARCHAR" property="data" />
-    <result column="create" jdbcType="VARCHAR" property="create" />
+    <result column="data" jdbcType="LONGVARCHAR" property="data" />
+    <result column="create" jdbcType="TIMESTAMP" property="create" />
     <result column="update" jdbcType="TIMESTAMP" property="update" />
     <result column="isshared" jdbcType="INTEGER" property="isshared" />
     <result column="isdel" jdbcType="INTEGER" property="isdel" />
@@ -92,6 +92,12 @@
     from note
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="selectIdListByUserId"  resultType="java.lang.Long">
+    select
+     id
+    from note
+    where userid = #{userid,jdbcType=BIGINT}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from note
     where id = #{id,jdbcType=BIGINT}
@@ -106,7 +112,7 @@
     insert into note (id, name, data, 
       `create`, `update`, isshared,
       isdel, userid)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{data,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{data,jdbcType=LONGVARCHAR},
       #{create,jdbcType=VARCHAR}, #{update,jdbcType=TIMESTAMP}, #{isshared,jdbcType=INTEGER}, 
       #{isdel,jdbcType=INTEGER}, #{userid,jdbcType=BIGINT})
   </insert>
@@ -114,7 +120,7 @@
     insert into note (id, name, data,
     `create`, `update`, isshared,
     isdel, userid)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{data,jdbcType=VARCHAR},
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{data,jdbcType=LONGVARCHAR},
     #{create,jdbcType=VARCHAR}, #{update,jdbcType=TIMESTAMP}, #{isshared,jdbcType=INTEGER},
     #{isdel,jdbcType=INTEGER}, #{userid,jdbcType=BIGINT})
   </insert>
@@ -154,7 +160,7 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="data != null">
-        #{data,jdbcType=VARCHAR},
+        #{data,jdbcType=LONGVARCHAR},
       </if>
       <if test="create != null">
         #{create,jdbcType=VARCHAR},
@@ -189,7 +195,7 @@
         name = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.data != null">
-        data = #{record.data,jdbcType=VARCHAR},
+        data = #{record.data,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.create != null">
         `create` = #{record.create,jdbcType=VARCHAR},
@@ -215,7 +221,7 @@
     update note
     set id = #{record.id,jdbcType=BIGINT},
       name = #{record.name,jdbcType=VARCHAR},
-      data = #{record.data,jdbcType=VARCHAR},
+      data = #{record.data,jdbcType=LONGVARCHAR},
       `create` = #{record.create,jdbcType=VARCHAR},
       `update` = #{record.update,jdbcType=TIMESTAMP},
       isshared = #{record.isshared,jdbcType=INTEGER},
@@ -232,7 +238,7 @@
         name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="data != null">
-        data = #{data,jdbcType=VARCHAR},
+        data = #{data,jdbcType=LONGVARCHAR},
       </if>
       <if test="create != null">
         `create` = #{create,jdbcType=VARCHAR},
@@ -255,7 +261,7 @@
   <update id="updateByPrimaryKey" parameterType="cn.mdol.po.Note">
     update note
     set name = #{name,jdbcType=VARCHAR},
-      data = #{data,jdbcType=VARCHAR},
+      data = #{data,jdbcType=LONGVARCHAR},
       `create` = #{create,jdbcType=VARCHAR},
       `update` = #{update,jdbcType=TIMESTAMP},
       isshared = #{isshared,jdbcType=INTEGER},

@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE HTML>
-<html>
+<html style="overflow-y: hidden; ">
 <head>
     <title>Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="editormd/css/editormd.preview.min.css"/>
     <link rel="stylesheet" href="editormd/css/editormd.min.css"/>
 </head>
-<body>
+<body style="overflow-y: hidden; ">
 <div ng-app="noteApp" ng-controller="noteCtrl">
     <div id="wrapper">
         <!-- Navigation -->
@@ -39,18 +39,17 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">Modern</a>
+                <a class="navbar-brand" href="main">MarkDownOL</a>
             </div>
 
-            <form class="navbar-form navbar-right">
-                <input type="text" class="form-control" value="Search..." onfocus="this.value = '';"
-                       onblur="if (this.value == '') {this.value = '搜索...';}">
+            <form hidden="hidden" class="navbar-form navbar-right">
+                <input type="text" class="form-control" value="搜索...">
             </form>
             <div class="navbar-default sidebar" role="navigation">
                 <div>
                     <a href="#" class="list-group-item active" ng-click="addNote()">新建笔记</a>
                 </div>
-                <div style="overflow:scroll; overflow-x:hidden; height:{{noteListHeight}}px;">
+                <div style="overflow:scroll; overflow-x:hidden; height:{{noteListHeight}}px;background-color:#337ab7; ">
                     <div ng-repeat="note in notes">
                         <a class="list-group-item " ng-click="getNote(note.id)">{{note.name}}</a>
                     </div>
@@ -67,8 +66,26 @@
                 </div>
                 <div style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 45px;">
                     <a class="btn btn-info btn-block btn-lg" ng-click="updateNote(noteInActiveid)">保存</a>
+                    {{user.email}}
                 </div>
-                <div hidden="hidden" >
+                <div style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 100px;">
+                    <a class="btn btn-info btn-block btn-lg" ng-click="delNote(noteInActiveid)">删除</a>
+                </div>
+                <div id="addSuccessMsg" hidden="hidden"
+                     style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 155px;">
+                    <a class="btn  btn-block btn-lg" style="background-color: #5cb85c"><span
+                            style="color: #d9edf7">新建成功</span></a>
+                </div>
+                <div id="updateSuccessMsg" hidden="hidden"
+                     style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 155px;">
+                    <a class="btn  btn-block btn-lg" style="background-color: #5cb85c"><span
+                            style="color: #d9edf7">保存成功</span></a>
+                </div>
+                <div id="delSuccessMsg" hidden="hidden"
+                     style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 155px;">
+                    <a class="btn  btn-block btn-success btn-lg">删除成功</a>
+                </div>
+                <div hidden="hidden">
                     // 临时放置被选中笔记
                     {{noteInActiveid}}
                     <br/>
@@ -85,6 +102,8 @@
                     {{noteInActiveisdel}}
                     <br/>
                     {{noteInActiveuserid}}
+                    <br/>
+                    {{check}}
                 </div>
             </div>
         </div>
@@ -111,31 +130,38 @@
 
     var text = null;
     var app = angular.module("noteApp", []);
-    app.controller("noteCtrl", function ($scope, $http, $window, $timeout) {
+    app.controller("noteCtrl", function ($scope, $http, $window, $timeout, $interval) {
         $scope.noteListHeight = winowHeight - 51;
         // 未登录跳转
         if ("${token}" == "") {
             $window.location.href = '${request.getContextPath()}/login';
         }
         // 获取所有笔记
-        $timeout(function () {
-            initMdEditor();
+        $scope.check = 0;
+        var getAllNote = function () {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/getAllNote',
-                data: "token=${token}",
+                data: "token=${token}&check=" + $scope.check,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
             })
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200 || data.status == 500) {
                             $scope.notes = data.data;
+                            $scope.check = 1;
                         }
                         else {
                             alert("session过期,请重新登录");
                             $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
+        };
+
+        // 获取所有笔记
+        $timeout(function () {
+            initMdEditor();
+            getAllNote();
         }, 1000);
 
         // 新建笔记函数
@@ -149,7 +175,9 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            $window.location.href = '${request.getContextPath()}/main';
+                            getAllNote();
+                            $('#addSuccessMsg').fadeIn("slow");
+                            $('#addSuccessMsg').fadeOut(3000);
                         } else {
                             alert("session过期,请重新登录");
                         }
@@ -169,7 +197,7 @@
                     });
         };
         //TODO // 选择查看笔记
-        $scope['getNote'] = function getNoteFun(noteId) {
+        $scope['getNote'] = function (noteId) {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/getNote',
@@ -188,14 +216,50 @@
                             $scope.noteInActiveisshared = respon.data.isshared;
                             $scope.noteInActiveisdel = respon.data.isdel;
                             $scope.noteInActiveuserid = respon.data.userid;
+
+                            $interval(function () {
+                                updateNoteFun(noteId);
+                            }, 300000);
+
                         } else {
                             alert("session过期,请重新登录");
                         }
                     });
         }
+
+        // 笔记删除方法
+        $scope['delNote'] = function (noteId) {
+            if (confirm("你确定删除笔记" + $scope.noteInActivename + "吗？")) {
+                $http({
+                    method: 'POST',
+                    url: '${request.getContextPath()}/note/delNote',
+                    data: "token=${token}&noteId=" + noteId,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                })
+                        .success(function (respon) {
+                            console.log(respon);
+                            if (respon.status == 200) {
+                                getAllNote();
+                                $('#delSuccessMsg').fadeIn("slow");
+                                $('#delSuccessMsg').fadeOut(3000);
+                            } else {
+                                alert("session过期,请重新登录");
+                            }
+                        });
+            }
+            else {
+
+            }
+        };
+
+
         // 笔记保存方法
 
-        $scope['updateNote'] = function updateNote(noteId) {
+        $scope['updateNote'] = updateNoteFun = function (noteId) {
+            if (noteId == "") {
+                alert("没有选中笔记");
+                return;
+            }
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/updateNote',
@@ -207,12 +271,18 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            alert("保存成功")
+//                            $scope.check=0;
+                            getAllNote();
+                            $('#updateSuccessMsg').fadeIn("slow");
+                            $('#updateSuccessMsg').fadeOut(3000);
+//                            alert("保存成功");
                         } else {
                             alert("session过期,请重新登录");
                         }
                     });
         }
+
+
     });
 </script>
 </html>

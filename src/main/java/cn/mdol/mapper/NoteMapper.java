@@ -2,6 +2,8 @@ package cn.mdol.mapper;
 
 import cn.mdol.po.Note;
 import cn.mdol.po.NoteExample;
+
+import java.util.Arrays;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,4 +32,6 @@ public interface NoteMapper {
     int updateByPrimaryKeySelective(Note record);
 
     int updateByPrimaryKey(Note record);
+
+    List<Long> selectIdListByUserId(Long userId);
 }

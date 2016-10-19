@@ -16,6 +16,8 @@ import org.springframework.util.DigestUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Vincent on 16/10/13.
@@ -42,12 +44,15 @@ public class UserServiceImpl implements UserService {
         }
         if (type == 2) {
             criteria.andEmailEqualTo(param);
+            //Pattern pattern = Pattern.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
+            //Matcher matcher = pattern.matcher("param");
+            //System.out.println(matcher.matches());
         }
         List<User> list = userMapper.selectByExample(userExample);
         if (list == null || list.size() == 0) {
             return ResponResult.ok(true);
         }
-        return ResponResult.ok(false);
+        return ResponResult.build(400,"已被占用");
     }
 
     @Override

@@ -27,29 +27,38 @@
     <h1 align="center">mdol注册</h1>
     <form ng-submit="formSub()">
         <div class="form-group">
-            <h3>邮箱</h3><input class="form-control bg-info " type="email" name="email" ng-model="email">
+            <h3>邮箱</h3><input class="form-control bg-info " type="email" name="email" ng-model="email"ng-blur="emailCheck()">
+            <span id="emailCheckSuccessMsg" hidden="hidden" style="color: green" >可以使用该邮箱</span>
+            <span id="emailCheckfailMsg" hidden="hidden" style="color: red">该邮箱已被注册</span>
         </div>
         <div class="form-group">
-            <h3>密码</h3><input class="form-control bg-info " name="password" type="password" ng-model="password">
+            <h3>密码</h3><input id="psw1" class="form-control bg-info " name="password" type="password" ng-model="password"onchange="passwordcheck()">
         </div>
         <div class="form-group">
-            <h3>密码</h3><input class="form-control bg-info " ng-model="user.passwordCheck">
+            <h3>密码</h3><input id="psw2" class="form-control bg-info " type="password" ng-model="user.passwordCheck"onchange="passwordcheck()">
+            <span id="pswCheck" hidden="hidden" style="color: red">密码不一致</span>
         </div>
-        <button class="btn btn-info btn-block btn-lg" type="submit">注册</button>
+        <button id="registBtn" disabled="disabled" class="btn btn-info btn-block btn-lg" ng-click="regist()">注册</button>
     </form>
     {{msg}}
 </div>
+
 </body>
 <script>
+    var passwordcheck=function () {
+        if($('#psw1').val()==$('#psw2').val())
+        {
+            $('#pswCheck').hide();
+            $('#registBtn').removeAttr('disabled');
+        }else{
+            $('#pswCheck').show();
+            $('#registBtn').attr("disabled","disabled");
+        };
+    }
     var app = angular.module("registApp", []);
     app.controller("resgistCtrl", function ($scope, $http, $timeout, $window) {
-        $scope.formSub = function () {
-            <%--$http.post("${request.getContextPath()}/user/regist", $scope.formData)--%>
-            <%--.success(function (response) {--%>
-            <%--if (response.status == 200) {--%>
-            <%--alert(注册成功);--%>
-            <%--}--%>
-            <%--});--%>
+        // 注册提交函数
+        $scope['regist'] = function () {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/user/regist',
@@ -65,7 +74,30 @@
                                 $window.location.href = '${request.getContextPath()}/login';
                             }, 1000);
                         } else {
-                            $scope.msg = data.msg + "   一般情况下是有人要搞事";
+                            $scope.msg = data.msg + "   一般情况下是这有人要搞事";
+                        }
+                    });
+        }
+        // 邮箱重名验证函数
+        $scope['emailCheck'] = function () {
+            $http({
+                method: 'POST',
+                url: '${request.getContextPath()}/user/check/'+$scope.email+"/2",
+                data: "",
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            })
+                    .success(function (data) {
+                        console.log(data);
+                        if (data.status == 200) {
+                            $('#emailCheckSuccessMsg').show();
+                            $('#emailCheckfailMsg').hide();
+                            $('#registBtn').removeAttr('disabled');
+                            $timeout(2000);
+                            $('#emailCheckSuccessMsg').fadeOut(2000);
+                        } else {
+                            $('#emailCheckfailMsg').show();
+                            $('#emailCheckSuccessMsg').hide();
+                            $('#registBtn').attr("disabled","disabled");
                         }
                     });
         }

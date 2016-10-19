@@ -5,8 +5,6 @@ import java.util.Date;
 public class Note {
     private Long id;
 
-
-
     private String name;
 
     private String data;

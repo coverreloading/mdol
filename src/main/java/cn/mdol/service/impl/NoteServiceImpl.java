@@ -110,7 +110,9 @@ public class NoteServiceImpl implements NoteService {
         }
 
         Note noteFromDB = noteMapper.selectByPrimaryKey(note.getId());
-
+        if(noteFromDB==null){
+            return ResponResult.build(400,"没有指定保存的笔记");
+        }
         String[] text = note.getData().split("\n");
         noteFromDB.setName(text[0]);
         noteFromDB.setUpdate(new Date());
@@ -174,6 +176,9 @@ public class NoteServiceImpl implements NoteService {
         }else{
             // 2. 直接查数据库
             note = noteMapper.selectByPrimaryKey(noteId);
+        }
+        if(note==null){
+            return ResponResult.build(400, "这个笔记已经被删除了");
         }
         // token对应用户id与笔记的userid不一致
         if (note.getUserid() != userId) {

@@ -12,19 +12,22 @@
     <title>Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href="css/bootstrap.min.css" rel='stylesheet' type='text/css'/>
-    <link href="css/style.css" rel='stylesheet' type='text/css'/>
-    <link href="css/custom.css" rel="stylesheet">
-    <script src="editormd/js/jquery.min.js"></script>
+    <link href="${request.getContextPath()}/css/bootstrap.min.css" rel='stylesheet' type='text/css'/>
+    <link href="${request.getContextPath()}/css/style.css" rel='stylesheet' type='text/css'/>
+    <link href="${request.getContextPath()}/css/custom.css" rel="stylesheet">
+    <script src="${request.getContextPath()}/editormd/js/jquery.min.js"></script>
     <!--<script src="js/jquery.min.js"></script>-->
-    <script src="js/angular.min.js"></script>
+    <script src="${request.getContextPath()}/js/angular.min.js"></script>
     <!--mdEditor-->
-    <script src="editormd/lib/marked.min.js"></script>
-    <script src="editormd/lib/prettify.min.js"></script>
-    <script src="editormd/editormd.min.js"></script>
+    <script src="${request.getContextPath()}/editormd/lib/marked.min.js"></script>
+    <script src="${request.getContextPath()}/editormd/lib/prettify.min.js"></script>
+    <script src="${request.getContextPath()}/editormd/editormd.min.js"></script>
     <!-- mdEditor-->
-    <link rel="stylesheet" href="editormd/css/editormd.preview.min.css"/>
-    <link rel="stylesheet" href="editormd/css/editormd.min.css"/>
+    <link rel="stylesheet" href="${request.getContextPath()}/editormd/css/editormd.preview.min.css"/>
+    <link rel="stylesheet" href="${request.getContextPath()}/editormd/css/editormd.min.css"/>
+    <%-- sweetalert --%>
+    <script src="${request.getContextPath()}/js/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="${request.getContextPath()}/css/sweetalert.css">
 </head>
 <body style="overflow-y: hidden; ">
 <div ng-app="noteApp" ng-controller="noteCtrl">
@@ -79,7 +82,7 @@
                 <div id="updateSuccessMsg" hidden="hidden"
                      style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 155px;">
                     <a class="btn  btn-block btn-lg" style="background-color: #5cb85c"><span
-                            style="color: #d9edf7">保存成功</span></a>
+                            style="color: #d9edf7">自动保存成功</span></a>
                 </div>
                 <div id="delSuccessMsg" hidden="hidden"
                      style="width: 100px;height: 20px;position:absolute;right:15px;bottom: 155px;">
@@ -127,7 +130,6 @@
             path: 'editormd/lib/'
         });
     });
-
     var text = null;
     var app = angular.module("noteApp", []);
     app.controller("noteCtrl", function ($scope, $http, $window, $timeout, $interval) {
@@ -136,9 +138,9 @@
         if ("${token}" == "") {
             $window.location.href = '${request.getContextPath()}/login';
         }
-        // 获取所有笔记
+        // 获取所有笔记 check用于判断是从redis中获取数据 loadTheFirstNote用于判断是否自动加载第一个笔记(删除方法调用)
         $scope.check = 0;
-        var getAllNote = function () {
+        var getAllNote = function (loadTheFirstNote) {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/getAllNote',
@@ -147,12 +149,18 @@
             })
                     .success(function (data) {
                         console.log(data);
-                        if (data.status == 200 || data.status == 500) {
+                        if (data.status == 200) {
                             $scope.notes = data.data;
                             $scope.check = 1;
+                            if(loadTheFirstNote==1){
+                                getNoteFun(data.data[0].id);
+                            }
+                        }else if(data.status == 500){
+                            $scope.check = 1;
+                            swal("还没有笔记", "点击左边新建笔记开始写markdown", "warning");
                         }
                         else {
-                            alert("session过期,请重新登录");
+                            swal("session过期", "请重新登录", "error");
                             $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
@@ -161,7 +169,7 @@
         // 获取所有笔记
         $timeout(function () {
             initMdEditor();
-            getAllNote();
+            getAllNote(1);
         }, 1000);
 
         // 新建笔记函数
@@ -175,11 +183,12 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            getAllNote();
+                            getAllNote(0);
                             $('#addSuccessMsg').fadeIn("slow");
                             $('#addSuccessMsg').fadeOut(3000);
                         } else {
-                            alert("session过期,请重新登录");
+                            swal("session过期", "请重新登录", "error");
+                            $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
         }
@@ -198,6 +207,10 @@
         };
         //TODO // 选择查看笔记
         $scope['getNote'] = function (noteId) {
+            getNoteFun(noteId);
+        }
+
+        var getNoteFun = function (noteId) {
             $http({
                 method: 'POST',
                 url: '${request.getContextPath()}/note/getNote',
@@ -216,48 +229,59 @@
                             $scope.noteInActiveisshared = respon.data.isshared;
                             $scope.noteInActiveisdel = respon.data.isdel;
                             $scope.noteInActiveuserid = respon.data.userid;
-
-                            $interval(function () {
-                                updateNoteFun(noteId);
-                            }, 300000);
-
                         } else {
-                            alert("session过期,请重新登录");
+                            swal("session过期", "请重新登录", "error");
+                            $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
         }
 
         // 笔记删除方法
         $scope['delNote'] = function (noteId) {
-            if (confirm("你确定删除笔记" + $scope.noteInActivename + "吗？")) {
-                $http({
-                    method: 'POST',
-                    url: '${request.getContextPath()}/note/delNote',
-                    data: "token=${token}&noteId=" + noteId,
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-                })
-                        .success(function (respon) {
-                            console.log(respon);
-                            if (respon.status == 200) {
-                                getAllNote();
-                                $('#delSuccessMsg').fadeIn("slow");
-                                $('#delSuccessMsg').fadeOut(3000);
-                            } else {
-                                alert("session过期,请重新登录");
-                            }
-                        });
-            }
-            else {
-
-            }
+            swal({
+                title: "确定删除吗？",
+                text: "你确定删除该笔记吗？",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确定删除",
+                cancelButtonText: "不,手滑了",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    $http({
+                        method: 'POST',
+                        url: '${request.getContextPath()}/note/delNote',
+                        data: "token=${token}&noteId=" + noteId,
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                    })
+                            .success(function (respon) {
+                                console.log(respon);
+                                if (respon.status == 200) {
+                                    getAllNote(1);
+                                    swal("删除成功", "笔记已成功删除", "success");
+                                    $timeout(function () {
+                                        swal.close();
+                                    },2000);
+                                }else if(respon.status==400){
+                                    swal("出错啦", respon.msg, "error");
+                                }
+                                else {
+                                    swal("session过期", "请重新登录", "error");
+                                    $window.location.href = '${request.getContextPath()}/login';
+                                }
+                            });
+                } else {
+                    swal("手滑了", "下次别再手滑了= = ", "error");
+                }
+            });
         };
 
-
         // 笔记保存方法
-
         $scope['updateNote'] = updateNoteFun = function (noteId) {
-            if (noteId == "") {
-                alert("没有选中笔记");
+            if (noteId == "" || noteId == null) {
+                swal("保存失败", "没有选中要保存的笔记", "error");
                 return;
             }
             $http({
@@ -271,18 +295,48 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-//                            $scope.check=0;
-                            getAllNote();
-                            $('#updateSuccessMsg').fadeIn("slow");
-                            $('#updateSuccessMsg').fadeOut(3000);
-//                            alert("保存成功");
-                        } else {
-                            alert("session过期,请重新登录");
+                            getAllNote(0);
+                            swal("保存成功", "笔记" + $scope.noteInActivename + "已成功保存", "success");
+                            $timeout(function () {
+                                swal.close();
+                            }, 2000);
+                        }else if(data.status==400){
+                            swal("错啦", data.msg+",重新选中一篇文章开始编辑吧", "error");
+                            $timeout(function () {
+                                swal.close();
+                            },2000);
+                        }
+                        else {
+                            swal("session过期", "请重新登录", "error");
+                            $window.location.href = '${request.getContextPath()}/login';
                         }
                     });
         }
-
-
+        // 笔记自动保存方法
+        var autpUpdate = function (noteId) {
+            $http({
+                method: 'POST',
+                url: '${request.getContextPath()}/note/updateNote',
+                data: "token=${token}&id=" + noteId +
+                "&data=" + testEditor.getMarkdown() +
+                "&userid=" + $scope.noteInActiveuserid,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            })
+                    .success(function (data) {
+                        console.log(data);
+                        if (data.status == 200) {
+                            getAllNote(0);
+                            $('#updateSuccessMsg').fadeIn("slow");
+                            $('#updateSuccessMsg').fadeOut(3000);
+                        } else {
+                            swal("session过期", "请重新登录", "error");
+                            $window.location.href = '${request.getContextPath()}/login';
+                        }
+                    });
+        }
+        $interval(function () {
+            autpUpdate($scope.noteInActiveid);
+        }, 300000);
     });
 </script>
 </html>

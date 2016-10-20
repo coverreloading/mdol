@@ -13,12 +13,15 @@
     <script src="${request.getContextPath()}/js/jquery.min.js"></script>
     <script src="${request.getContextPath()}/js/bootstrap.min.js"></script>
     <script src="${request.getContextPath()}/js/angular.min.js"></script>
-    <%-- 语法提示 用 --%>
+
     <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <script src="./js/jquery.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
-    <script src="./js/angular.min.js"></script>
-    <%-- 语法提示 END--%>
+    <script src="${request.getContextPath()}/js/jquery.min.js"></script>
+    <script src="${request.getContextPath()}/js/bootstrap.min.js"></script>
+    <script src="${request.getContextPath()}/js/angular.min.js"></script>
+    <%-- sweetalert --%>
+    <script src="${request.getContextPath()}/js/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="${request.getContextPath()}/css/sweetalert.css">
+
     <title>登录</title>
 </head>
 <body>
@@ -49,12 +52,25 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            $scope.msg = "登录成功,跳转到主页";
+//                            $scope.msg = "登录成功,跳转到主页";
                             $timeout(function () {
                                 $window.location.href = '${request.getContextPath()}/main';
-                            }, 1000);
+                            }, 2000);
+                            swal({
+                                title: "登录成功",
+                                text: "恭喜你，成功登陆MDOL",
+                                type: "success",
+                                showCancelButton: false,
+                                confirmButtonColor: "#aedef4",
+                                confirmButtonText: "跳转到首页",
+                                closeOnConfirm: false
+                            }, function () {
+                                $window.location.href = '${request.getContextPath()}/main';
+                            });
+
+
                         } else {
-                            $scope.msg = "用户名或密码出错";
+                            swal("登录失败", data.msg, "error");
                         }
                     });
         }

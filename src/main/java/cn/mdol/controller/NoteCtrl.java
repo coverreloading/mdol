@@ -80,6 +80,7 @@ public class NoteCtrl {
         }
 
     }
+    // check用于判断是从redis中获取数据
     @RequestMapping(value = "/getAllNote",method = RequestMethod.POST)
     @ResponseBody
     public ResponResult getAllNote(String token, @RequestParam(value = "check")int getFromRedis) {
@@ -111,7 +112,7 @@ public class NoteCtrl {
             e.printStackTrace();
             return ResponResult.build(500, ExceptionUtil.getStackTrace(e));
         }
-        //TODO 未测试
+
     }
 
 }

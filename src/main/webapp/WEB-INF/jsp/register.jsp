@@ -13,12 +13,9 @@
     <script src="${request.getContextPath()}/js/jquery.min.js"></script>
     <script src="${request.getContextPath()}/js/bootstrap.min.js"></script>
     <script src="${request.getContextPath()}/js/angular.min.js"></script>
-    <%-- 语法提示 用 --%>
-    <%--<link rel="stylesheet" href="./css/bootstrap.min.css">--%>
-    <%--<script src="./js/jquery.min.js"></script>--%>
-    <%--<script src="./js/bootstrap.min.js"></script>--%>
-    <%--<script src="./js/angular.min.js"></script>--%>
-    <%-- 语法提示 END--%>
+    <%-- sweetalert --%>
+    <script src="${request.getContextPath()}/js/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="${request.getContextPath()}/css/sweetalert.css">
     <title>mdol注册</title>
 </head>
 <body>
@@ -68,13 +65,22 @@
                     .success(function (data) {
                         console.log(data);
                         if (data.status == 200) {
-                            $scope.msg = "注册成功,跳转到登录";
                             $timeout(function () {
-                                <%--$location.path('${request.getContextPath()}/login');--%>
                                 $window.location.href = '${request.getContextPath()}/login';
-                            }, 1000);
+                            }, 2000);
+                            swal({
+                                title: "注册成功",
+                                text: "恭喜你，成功MDOL的新成员,正在跳转到登录页",
+                                type: "success",
+                                showCancelButton: false,
+                                confirmButtonColor: "#aedef4",
+                                confirmButtonText: "跳转到登录页",
+                                closeOnConfirm: false
+                            }, function () {
+                                $window.location.href = '${request.getContextPath()}/login';
+                            });
                         } else {
-                            $scope.msg = data.msg + "   一般情况下是这有人要搞事";
+                            swal("恭喜你", "搞事失败", "error");
                         }
                     });
         }

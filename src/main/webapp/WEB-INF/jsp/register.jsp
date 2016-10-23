@@ -36,6 +36,9 @@
             <span id="pswCheck" hidden="hidden" style="color: red">密码不一致</span>
         </div>
         <button id="registBtn" disabled="disabled" class="btn btn-info btn-block btn-lg" ng-click="regist()">注册</button>
+        <div style="padding-top: 15px; padding-bottom: 20px;">
+            <a class="pull-left" href="${request.getContextPath()}/login"><h5>登录</h5></a>
+        </div>
     </form>
     {{msg}}
 </div>

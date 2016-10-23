@@ -7,13 +7,11 @@ import cn.mdol.utils.ExceptionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * Created by Vincent on 16/10/13.
  */
 @Controller
+@Scope("prototype")
 @RequestMapping("user")
 public class UserCtrl {
 
@@ -100,9 +99,10 @@ public class UserCtrl {
     public ResponResult login(String email, String password, HttpServletRequest request, HttpServletResponse response) {
         try {
             if (StringUtils.isNotEmpty(email) && StringUtils.isNotEmpty(password)) {
-                ResponResult responResunlt = userService.login(email, password);
+                ResponResult responResunlt = userService.getLogin(email, password);
                 System.out.println(responResunlt.getData());
                 request.getSession().setAttribute("token", responResunlt.getData());
+                request.getSession().setMaxInactiveInterval(3600);
                 return responResunlt;
             } else {
                 return ResponResult.build(400, "你想搞事?");

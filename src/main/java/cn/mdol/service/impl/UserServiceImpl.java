@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponResult login(String email, String password) {
+    public ResponResult getLogin(String email, String password) {
 
         UserExample userExample = new UserExample();
         UserExample.Criteria criteria = userExample.createCriteria();
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
         }
         jedisClient.expire(REDIS_USER_SESSION_KEY+":"+token,SSO_SESSION_EXPIRE);
         User user = JsonUtils.jsonToPojo(json,User.class);
-        System.out.println(user.toString());
+        //System.out.println(user.toString());
         return user.getId();
     }
 }

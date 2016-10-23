@@ -161,7 +161,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponResult del(String token, Long noteId) {
+    public ResponResult delete(String token, Long noteId) {
         // token过期判定
         Long userId = userService.getUserIdByToken(token);
         if (userId == -1) {

@@ -14,13 +14,35 @@
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
+
+    <!--<bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">-->
+        <!--<property name="supportedMediaTypes">-->
+            <!--<list>-->
+                <!--<value>application/json; charset=UTF-8</value>-->
+                <!--<value>textml;charset=UTF-8</value>-->
+                <!--&lt;!&ndash;<value>application/x-www-form-urlencoded;charset=UTF-8</value>&ndash;&gt;-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; 定义注解驱动 &ndash;&gt;-->
+    <!--<mvc:annotation-driven>-->
+        <!--<mvc:message-converters>-->
+            <!--<ref bean="fastJsonHttpMessageConverter"/>-->
+        <!--</mvc:message-converters>-->
+    <!--</mvc:annotation-driven>-->
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter"/>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
     <!--控制器映射器和控制器适配器-->
-    <mvc:annotation-driven></mvc:annotation-driven>
+    <!--<mvc:annotation-driven></mvc:annotation-driven>-->
 
     <!-- 资源映射 -->
     <mvc:resources location="/WEB-INF/css/" mapping="/css/**"/>
     <mvc:resources location="/WEB-INF/js/" mapping="/js/**"/>
-    <mvc:resources location="/WEB-INF/fonts/" mapping="/fonts/**"/>
-    <mvc:resources location="/WEB-INF/images/" mapping="/images/**"/>
     <mvc:resources location="/WEB-INF/editormd/" mapping="/editormd/**"/>
 </beans>

@@ -12,5 +12,5 @@ public interface NoteService {
     ResponResult getNote(String token,Long noteId);
     ResponResult updateNote(String token,Note note);
     ResponResult getAllNote(String token,int getFromRedis);
-    ResponResult del(String token, Long noteId);
+    ResponResult delete(String token, Long noteId);
 }

@@ -33,15 +33,25 @@
             <h3>邮箱</h3><input class="form-control bg-info " type="email" name="email" ng-model="email">
         </div>
         <div class="form-group">
-            <h3>密码</h3><input class="form-control bg-info " name="password" ng-model="password">
+            <h3>密码</h3><input class="form-control bg-info " type="password" name="password" ng-model="password">
         </div>
         <button class="btn btn-info btn-block btn-lg" type="submit">登录</button>
+        <div style="padding-top: 15px; padding-bottom: 20px;">
+            <a class="pull-left " onclick="resetPassword()"><h5>忘记密码</h5></a>
+            <a class="pull-right" href="${request.getContextPath()}/register"><h5>注册</h5></a>
+        </div>
     </form>
 </div>
 </body>
 <script>
+    function resetPassword() {
+        swal("忘了就忘了", "关我嗨事", "error");
+    }
+</script>
+<script>
     var app = angular.module("registApp", []);
     app.controller("resgistCtrl", function ($scope, $http, $timeout, $window) {
+
         $scope.formSub = function () {
             $http({
                 method: 'POST',

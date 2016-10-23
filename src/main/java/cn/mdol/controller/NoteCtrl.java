@@ -42,7 +42,6 @@ public class NoteCtrl {
             e.printStackTrace();
             return ResponResult.build(500, ExceptionUtil.getStackTrace(e));
         }
-
     }
 
     @RequestMapping(value = "/updateNote",method = RequestMethod.POST)
@@ -62,7 +61,6 @@ public class NoteCtrl {
         }
 
     }
-
     @RequestMapping(value = "/getNote",method = RequestMethod.POST)
     @ResponseBody
     public ResponResult getNote(String token, Long noteId) {
@@ -99,10 +97,10 @@ public class NoteCtrl {
     }
     @RequestMapping(value = "/delNote",method = RequestMethod.POST)
     @ResponseBody
-    public ResponResult delNote(String token,Long noteId) {
+    public ResponResult deleteNote(String token,Long noteId) {
         try {
             if (StringUtils.isNotEmpty(token)&&noteId!=null){
-                ResponResult responResult = noteService.del(token,noteId);
+                ResponResult responResult = noteService.delete(token,noteId);
                 return responResult;
             }
             else {
